@@ -1,0 +1,7 @@
+POST http://localhost:8080/api/profile
+Content-Type: application/json
+
+{
+  "login": "aa",
+  "email": "email"
+}

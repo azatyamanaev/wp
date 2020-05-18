@@ -6,6 +6,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.*;
 import org.springframework.core.env.Environment;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -31,6 +32,7 @@ import java.util.Properties;
 
 @Configuration
 @EnableWebMvc
+@EnableJpaRepositories(basePackages = "ru.itis.workproject")
 @EnableTransactionManagement
 @PropertySource("classpath:application.properties")
 @ComponentScan(basePackages = "ru.itis.workproject")
@@ -86,24 +88,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
         return configuration;
     }
 
-    @Bean
-    public JavaMailSender getJavaMailSender() {
-        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-        mailSender.setHost(environment.getProperty("mail.host"));
-        mailSender.setPort(Integer.parseInt(environment.getProperty("mail.port")));
-
-        mailSender.setUsername(environment.getProperty("mail.username"));
-        mailSender.setPassword(environment.getProperty("mail.password"));
-
-        Properties props = mailSender.getJavaMailProperties();
-        props.put("mail.transport.protocol", "smtp");
-        props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.debug", "true");
-
-        return mailSender;
-    }
-
 
     @Bean
     public CommonsMultipartResolver multipartResolver() {
@@ -126,7 +110,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
         hibernateJpaVendorAdapter.setDatabase(Database.POSTGRESQL);
         LocalContainerEntityManagerFactoryBean entityManagerFactory = new LocalContainerEntityManagerFactoryBean();
         entityManagerFactory.setDataSource(hikariDataSource());
-        entityManagerFactory.setPackagesToScan("ru.itis.models");
+        entityManagerFactory.setPackagesToScan("ru.itis.workproject.models");
         entityManagerFactory.setJpaVendorAdapter(hibernateJpaVendorAdapter);
         entityManagerFactory.setJpaProperties(additionalProperties());
         return entityManagerFactory;

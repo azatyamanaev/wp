@@ -38,9 +38,14 @@ public class ProfileController {
     @PostMapping("/profile")
     public String updateProfile(Authentication authentication, @Valid ProfileForm form, BindingResult bindingResult, Model model) {
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        model.addAttribute("user", userDetails.getUser());
+        User user = userDetails.getUser();
+        model.addAttribute("user", user);
         model.addAttribute("profileForm", form);
-        usersService.updateUser(userDetails.getUser());
+        if (!bindingResult.hasErrors()) {
+            user.setLogin(form.getLogin());
+            user.setEmail(form.getEmail());
+            usersService.updateUser(user);
+        }
         return "profile";
     }
 }

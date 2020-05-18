@@ -13,12 +13,12 @@
 <table align="center" border="0" cellpadding="0" cellspacing="0" width="600" style="border-collapse: collapse;">
     <tr>
         <td align="center" bgcolor="black" style="padding: 10px 0 5px 0;">
-            <p style="font-size: 30px; color: white"><b>Your image uploaded seccessfully!</b></p>
+            <p style="font-size: 30px; color: white"><b>Your image uploaded successfully!</b></p>
         </td>
     </tr>
     <tr>
         <td bgcolor="#f7f7f7" style="padding: 40px 30px 40px 30px;">
-            <p>Dear user</p>
+            <p>Dear ${login},</p>
             <p>Here is <a href="http://localhost:8080/files/${url}">link</a> to your image</p>
         </td>
     </tr>

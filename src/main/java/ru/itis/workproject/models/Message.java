@@ -14,7 +14,7 @@ import javax.persistence.Id;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Entity
+
 public class Message {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

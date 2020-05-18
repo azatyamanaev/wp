@@ -12,9 +12,9 @@ import java.util.Optional;
 public class FilesRepositoryJpaImpl implements FilesRepository {
 
     //language=SQL
-    private final String SQL_SELECT_ALL = "select * from files";
+    private final String SQL_SELECT_ALL = "select * from fileinfo";
     //language=SQL
-    private final String SQL_DELETE_BY_ID = "delete from files where id = ?";
+    private final String SQL_DELETE_BY_ID = "delete from fileinfo where id = ?";
 
     @PersistenceContext
     private EntityManager entityManager;

@@ -1,55 +1,82 @@
 package ru.itis.workproject.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributesModelMap;
-import ru.itis.workproject.services.FileLoadService;
+import ru.itis.workproject.dto.InformationDto;
+import ru.itis.workproject.models.User;
+import ru.itis.workproject.security.details.UserDetailsImpl;
+import ru.itis.workproject.services.FilesService;
 
 
 @Controller
 public class FilesController {
 
     @Autowired
-    private FileLoadService fileLoadService;
+    private FilesService filesService;
 
     @PreAuthorize("isAuthenticated()")
-    @RequestMapping(value = "/files", method = RequestMethod.POST)
-    public ModelAndView uploadFile(@RequestParam("file") MultipartFile multipartFile) {
-        ModelAndView modelAndView = new ModelAndView();
-        if (!multipartFile.isEmpty()) {
-            fileLoadService.uploadFile(multipartFile);
-            modelAndView.setViewName("uploadSuccess");
-        } else {
-            modelAndView.setViewName("emptyFile");
-        }
-        return modelAndView;
+    @PostMapping("/files")
+    @ResponseBody
+    public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile multipartFile) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        User user = userDetails.getUser();
+        String email = user.getEmail();
+        String login = user.getLogin();
+        return ResponseEntity.ok().body(filesService.saveFile(multipartFile, email, login));
     }
 
-    @PreAuthorize("isAuthenticated()")
-    @RequestMapping(value = "/files/{file-name:.+}", method = RequestMethod.GET)
-    public ModelAndView getFile(@PathVariable("file-name") String filename) {
-        String name = filename.substring(10);
-        fileLoadService.downloadFile(filename);
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.addObject("filename", name);
-        modelAndView.setViewName("redirect:/downloadedFile");
-        RedirectAttributesModelMap attributesModelMap = new RedirectAttributesModelMap();
-        attributesModelMap.addFlashAttribute("filename", name);
-        return modelAndView;
+    @PreAuthorize("permitAll()")
+    @GetMapping("/files/{file-name:.+}")
+    @ResponseBody
+    public ResponseEntity<Resource> read(@PathVariable("file-name") String fileName) {
+        return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(filesService.getFile(fileName));
     }
 
-    @RequestMapping(value = "/downloadedFile", method = RequestMethod.GET)
-    public ModelAndView getDownloadSuccessPage(@RequestParam("filename") String filename) {
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("downloadedFile");
-        modelAndView.addObject("filename", filename);
-        return modelAndView;
+
+    @PreAuthorize("permitAll()")
+    @GetMapping("/storage")
+    public String getStoragePage() {
+        return "uploadFiles";
     }
+
+    @GetMapping("/files/init")
+    @ResponseBody
+    public ResponseEntity<?> init() {
+        filesService.init();
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/files/convert")
+    @ResponseBody
+    public ResponseEntity<?> convert() {
+        filesService.convert();
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("users/{user-id}/files/png/convert")
+    @ResponseBody
+    public ResponseEntity<?> convertPngByUser(@PathVariable("user-id") Long userId) {
+        filesService.convertPngByUser(userId);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("users/{user-id}/files/information")
+    @ResponseBody
+    public ResponseEntity<InformationDto> getInformation(@PathVariable("user-id") Long userId) {
+        InformationDto result = filesService.getInformation(userId);
+        return ResponseEntity.ok(result);
+    }
+
 }

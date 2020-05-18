@@ -31,7 +31,8 @@
                 url: "http://localhost:8080/files",
                 data: formData,
                 processData: false,
-                contentType: false
+                contentType: false,
+                cache: false
             })
                 .done(function (response) {
                     alert(response)
@@ -51,13 +52,5 @@
     <input type="hidden" id="file_hidden">
     <div class="filename"></div>
 </div>
-<!--<form method="post" action="/files" id="sendFile">
-    <input type="file" id="file" name="file" placeholder="Имя файла..."/>
-    <input type="submit">
-        Загрузить файл
-    </input>
-    <input type="hidden" id="file_hidden">
-    <div class="filename"></div>
-</form>-->
 </body>
 </html>

@@ -6,6 +6,7 @@
         <class>ru.itis.workproject.models.User</class>
         <class>ru.itis.workproject.models.FileInfo</class>
         <class>ru.itis.workproject.models.Message</class>
+        <class>ru.itis.workproject.models.Document</class>
         <properties>
             <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQL10Dialect"/>
             <property name="hibernate.hbm2ddl.auto" value="update"/>

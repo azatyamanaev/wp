@@ -1,9 +1,11 @@
 package ru.itis.workproject.models;
 
 import lombok.*;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -23,10 +25,10 @@ public class User implements Serializable {
     private State state;
     @Enumerated(value = EnumType.STRING)
     private Role role;
+    @OneToMany(mappedBy = "owner")
+    @Where(clause = "type = 'image/png'")
+    private List<Document> pngDocuments;
 
-    public User(String login, String email, String password) {
-        this.login = login;
-        this.email = email;
-        this.password = password;
-    }
+    @OneToMany(mappedBy = "owner")
+    private List<Document> documents;
 }

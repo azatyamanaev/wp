@@ -24,41 +24,60 @@ public class EmailServiceImpl implements EmailService {
 
     @Autowired
     private Configuration configuration;
+    static {
+        Properties properties = System.getProperties();
+        properties.setProperty("mail.smtp.host", "smtp.yandex.ru");
+        properties.setProperty("mail.smtp.auth", "true");
+        properties.setProperty("mail.smtp.port", "8080");
+        properties.setProperty("mail.smtp.socketFactory.port", "465");
+        properties.setProperty("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+    }
 
     @Value("${secret.key}")
     private String secretKey;
 
-    @Autowired
-    private JavaMailSender emailSender;
-
     @Override
     public void sendNotificationAboutRegistration(SignUpDto form) {
-        MimeMessage message = emailSender.createMimeMessage();
+        Properties properties = System.getProperties();
+        Session session = Session.getDefaultInstance(properties, new Authenticator() {
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication("azatyamanaev", "Tuckjedtemyaux0");
+            }
+        });
+        MimeMessage message = new MimeMessage(session);
         try {
-            MimeMessageHelper helper = new MimeMessageHelper(message, true);
             String text = getEmailPage(form, secretKey, message);
-            helper.setText(text, true);
-            helper.addTo(form.getEmail());
-            helper.setSubject("Email confirmation");
+            message.setFrom(new InternetAddress("azatyamanaev@yandex.ru"));
+            message.addRecipient(Message.RecipientType.TO, new InternetAddress(form.getEmail()));
+            message.setSubject("Registration on site");
+            message.setContent(text, "text/html");
+            Transport.send(message);
         } catch (MessagingException e) {
-            throw new IllegalStateException();
+            throw new IllegalArgumentException(e);
         }
-        emailSender.send(message);
     }
 
     @Override
-    public void sendLinkToUploadedFile(String email, String fileName) {
-        MimeMessage message = emailSender.createMimeMessage();
+    public void sendLinkToUploadedFile(String email, String fileName, String login) {
+        Properties properties = System.getProperties();
+        Session session = Session.getDefaultInstance(properties, new Authenticator() {
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication("azatyamanaev", "Tuckjedtemyaux0");
+            }
+        });
+        MimeMessage message = new MimeMessage(session);
         try {
-            MimeMessageHelper helper = new MimeMessageHelper(message, true);
-            String text = getFileLinkPage(fileName, message);
-            helper.setText(text, true);
-            helper.addTo(email);
-            helper.setSubject("Image url");
+            String text = getFileLinkPage(fileName, message, login);
+            message.setFrom("azatyamanaev@yandex.ru");
+            message.addRecipient(Message.RecipientType.TO, new InternetAddress(email));
+            message.setSubject("Uploaded file");
+            message.setContent(text, "text/html");
+            Transport.send(message);
         } catch (MessagingException e) {
-            throw new IllegalStateException();
+            throw new IllegalStateException(e);
         }
-        emailSender.send(message);
     }
 
     @Override
@@ -76,10 +95,11 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public String getFileLinkPage(String url, MimeMessage message) {
+    public String getFileLinkPage(String url, MimeMessage message, String login) {
         try {
             Map<String, Object> model = new HashMap();
             model.put("url", url);
+            model.put("login", login);
             Template template = configuration.getTemplate("url.ftl");
             return FreeMarkerTemplateUtils.processTemplateIntoString(template, model);
         } catch (Exception e) {

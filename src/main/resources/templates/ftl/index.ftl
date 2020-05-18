@@ -11,7 +11,7 @@
   </head>
   <body>
   <button onclick="location.href='/profile'"><@spring.message 'index.page.profile'/></button>
-  <button onclick="location.href='/uploadFiles'"><@spring.message 'index.page.upload_files'/></button>
+  <button onclick="location.href='/storage'"><@spring.message 'index.page.storage'/></button>
   <button onclick="location.href='/chat'"><@spring.message 'index.page.chat'/></button>
   </body>
 </html>

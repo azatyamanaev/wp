@@ -5,3 +5,19 @@ Content-Type: application/json
   "login": "aa",
   "email": "email"
 }
+
+###
+
+GET http://localhost:8080/files/init
+
+###
+
+GET http://localhost:8080/files/convert
+
+###
+
+GET http://localhost:8080/users/1/files/png/convert
+
+###
+
+GET http://localhost:8080/users/1/files/information
